@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask (__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://build-a-blog@localhost8889/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -58,6 +58,6 @@ def new_entry():
             return redirect(url) 
     return render_template('new_entry_form.html', title= "Create new blog entry")  
 
-if __name__ == '__main':
+if __name__ == '__main__':
     app.run()   
         
