@@ -33,7 +33,7 @@ def display_blog_entries():
     entry_id = request.args.get('id') 
     if (entry_id):
         entry = Entry.query.get(entry_id) 
-        return render_template ('single_entry.html', title= "Blog Entry", entry=entry")
+        return render_template ('single_entry.html', title= "Blog Entry", entry=entry)
         sort = request.args.get('sort')
     if (sort == "newest"): 
         all_entries= Entry.query.order_by(Entry.created.desc()).all()
@@ -43,7 +43,7 @@ def display_blog_entries():
 
 @app.route('/new_entry', methods=['GET','POST'])
 def new_entry():
-    if request.method = 'POST':
+    if request.method == 'POST':
         new_entry_title = request.form['title']
         new_entry_body = request.form['body']
         new_entry= Entry(new_entry_title, new_entry_body)
