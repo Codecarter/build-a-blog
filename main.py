@@ -1,76 +1,63 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
-import cgi
-import jinja2
-import os
 
-template_dir = os.path.join(os.path.dirname(__file__), "templates")
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
-
-
-class Handler(new-entry):
-    def write(self, *a, **kw):
-        self.response.out.write(*a, **kw)
-
-    def render_str(self, template, **params):
-        t = jinja_env.get_template(template)
-        return t.render(params)
-
-    def render(self, template, **kw):
-        self.write(self.render_str(template, **kw))
+app = Flask (__name__)
+app.config['DEBUG'] = True
+app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://build-a-blog'
+app.config['SQLALCHEMY_ECHO'] = True
+db = SQLAlchemy(app)
 
 class Entry(db.Model):
-    title = db.StringProperty(required = True)
-    entry = db.TextProperty(required = True)
-    created = db.DateTimeProperty(auto_now_add = True)
+    id = db.Column (db.Integer,primary_key= True)
+    title = db.Column (db.String (180))
+    body = db.Column (db.String (1000))
+    created = db.Column(db.DateTime)
 
-class MainPage(post):
-    # handles the '/' webpage
-    def get(self):
-        self.render("base.html")
+    def __init__(self, title, body):
+        self.title = title
+        self.body = body
+        self.created = datetime.utcnow()
 
-class NewEntry(new-entry):
-    # handles new-entry form submissions
-    def render_entry_form(self, title="", entry="", error=""):
-        self.render("new-entry.html", title=title, entry=entry, error=error)
-
-    def get(self):
-        self.render_entry_form()
-
-    def post(self):
-        title = self.request.get("title")
-        entry = self.request.get("entry")
-
-        if title and entry:
-            e = Entry(title=title, entry=entry)
-            e.put()
-
-            self.redirect("/blog/"+ str(e.key().id()))
+    def is_valid(self):
+        if self.title and self.body and self.created:
+            return True
         else:
-            error = "We need both a title and entry content!"
-            self.render_entry_form(title, entry, error)
+            return False
+@app.route("/")
+def index():
+    return redirect("/blog") 
 
-class BlogEntries(new-entry):
-    #handles the '/blog' webpage
-    def render_entries(self, title="", entry="", error=""):
-        entries = db.GqlQuery("SELECT * FROM Entry ORDER BY created DESC LIMIT 5")
-        self.render("front.html", title=title, entry=entry, error=error, entries=entries)
-    def get(self):
-        self.render_entries()
+@app.route("/blog") 
+def display_blog_entries():
 
-class ViewPostHandler(post):
-    #handle viewing single post by entity id
-    def render_single_entry(self, id, title="", entry="", error=""):
-        single_entry = Entry.get_by_id(int(id), parent=None)
-        self.render("single-entry.html", title=title, entry=entry, error=error, single_entry=single_entry)
-    def get(self, id):
-        if id:
-            self.render_single_entry(id)
+    entry_id = request.args.get('id') 
+    if (entry_id):
+        entry = Entry.query.get(entry_id) 
+        return render_template ('single_entry.html', title= "Blog Entry", entry=entry")
+        sort = request.args.get('sort')
+    if (sort == "newest"): 
+        all_entries= Entry.query.order_by(Entry.created.desc()).all()
+    else:
+        all_entries= Entry.query.all()
+    return render_template('all_entries.html', title= 'All Entries', all_entries= all_entries)
+
+@app.route('/new_entry', methods=['GET','POST'])
+def new_entry():
+    if request.method = 'POST':
+        new_entry_title = request.form['title']
+        new_entry_body = request.form['body']
+        new_entry= Entry(new_entry_title, new_entry_body)
+        if new_entry_title == "" or new_entry_body == "":
+            flash("Please check your entry for errors. Both a title and body are required")
+            return render_template('new_entry_form.html',title= 'Create new blog entry', new_entry_title= new_entry_title, new_entry_body=new_entry_body)
         else:
-            self.render_single_entry(id, title = "nothing here!",
-                        post = "there is no post with id "+ str(id))
+            db.session.add(new_entry) 
+            db.session.commit()
 
+            url="/blog?=" + str(new_entry.id)
+            return redirect(url) 
+    return render_template('new_entry_form.html', title= "Create new blog entry")  
 
-    
-
-    
+if __name__ == '__main':
+    app.run()   
+        
