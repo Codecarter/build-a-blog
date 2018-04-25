@@ -1,9 +1,9 @@
-from flask import Flask, request, redirect, render_template, flash
+from flask import Flask, request, redirect, render_template, flash, session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask (__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://build-a-blog@localhost8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://build-a-blog@localhost:8888/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
