@@ -1,4 +1,8 @@
-{% extends "base.html" %} {% block content %} 
-{{post_title}}{{posts.title}}
-{{post_body}}{{posts.body}}
-{% endblock %} 
+{% extends "base.html" %}
+
+{% block content %}
+<div class='form'>
+    <h1>{{posts.title}}</h1>
+    <p>{{posts.body}}</p>
+</div>
+{% endblock %}
